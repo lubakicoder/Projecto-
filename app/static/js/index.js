@@ -5,6 +5,7 @@ const API = {
     atendimento: "/api/atendimentos"
 };
 
+
 let DB = {
     atendimentos:[]
 };
@@ -22,6 +23,14 @@ async function carregarAtendimentos(){
 
 const SINTOMAS=['Febre','Dor de cabeça','Tosse','Coriza','Dor no peito','Falta de ar','Náusea','Vômito','Dor abdominal','Tontura','Cansaço','Dor nas costas'];
 let session=null, tab=0, selSint=[], editId=null;
+
+function togglePac(mode){
+    document.getElementById("pacLogin").style.display = mode === "login" ? "block" : "none";
+    document.getElementById("pacRegister").style.display = mode === "register" ? "block" : "none";
+
+    document.getElementById("tabLogin").classList.toggle("active", mode === "login");
+    document.getElementById("tabRegister").classList.toggle("active", mode === "register");
+}
 
 function goScreen(id){
           document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -95,34 +104,69 @@ async function loginMedico(){
     }
 }
 
+async function registerPaciente(){
+    const res = await fetch("/api/auth/paciente/register", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+            nome: document.getElementById("rNome").value,
+            bi: document.getElementById("rBI").value,
+            data_nascimento: document.getElementById("rData").value,
+            telefone: document.getElementById("rTel").value,
+            email: document.getElementById("rEmail").value,
+            senha: document.getElementById("rSenha").value
+        })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+        alert("Conta criada com sucesso!");
+        togglePac("login");
+    } else {
+        alert(data.message);
+    }
+}
+
 async function loginPaciente(){
-    const bi =
-        document.getElementById("pacCPF").value.trim();
-    const nome =
-        document.getElementById("pacNome").value.trim();
+
+    const email =
+        document.getElementById("pacEmail").value.trim();
+
+    const senha =
+        document.getElementById("pacSenha").value.trim();
+
     const res = await fetch(
         `${API.auth}/paciente/login`,
         {
-            method:"POST",
+            method: "POST",
             headers:{
                 "Content-Type":"application/json"
             },
-            body:JSON.stringify({
-                bi,
-                nome
+            body: JSON.stringify({
+                email,
+                senha
             })
         }
     );
+
     const data = await res.json();
+
     if(data.success){
+
         session = {
-            role:"paciente",
-            nome:data.paciente.nome,
-            bi:data.paciente.bi
+            role: "paciente",
+            nome: data.paciente.nome,
+            bi: data.paciente.bi,
+            email: data.paciente.email,
         };
+
         openDash();
+
     }else{
+
         alert(data.message);
+
     }
 }
 
@@ -180,7 +224,7 @@ function render(){
           else renderAdmin(c);
 }
 
-/* PACIENTE */
+
 function renderPaciente(c){
           const meu=DB.atendimentos.find(a=>a.bi===session.bi);
           c.innerHTML=`
@@ -193,23 +237,88 @@ function renderPaciente(c){
                       el.onclick=()=>{const s=el.dataset.s;selSint.includes(s)?selSint=selSint.filter(x=>x!==s):selSint.push(s);el.classList.toggle('sel',selSint.includes(s));};
                     });
 }
-function formPac(){return `<div class="card">
-  <div class="card-title"><i class="ti ti-clipboard-list"></i> Formulário de sintomas</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-        <div class="fgroup"><label class="flabel">Paciente</label><input class="finput" disabled value="${session.nome}"></div>
-            <div class="fgroup"><label class="flabel">CPF</label><input class="finput" disabled value="${session.bi}"></div>
-              </div>
-                <div class="fgroup"><label class="flabel">Idade</label><input class="finput" id="pId" type="number" placeholder="Sua idade" min="1" max="120" style="width:160px"></div>
-                  <div class="fgroup"><label class="flabel">Selecione os sintomas</label>
-                      <div class="stag-grid">${SINTOMAS.map(s=>`<div class="stag${selSint.includes(s)?' sel':''}" data-s="${s}"><i class="ti ti-circle-dotted"></i>${s}</div>`).join('')}</div>
-                        </div>
-                          <div class="fgroup">
-                              <label class="flabel">Intensidade dos sintomas — <strong id="intLbl" style="color:var(--accent2)">5</strong>/10</label>
-                                  <input type="range" id="pInt" min="1" max="10" step="1" value="5" style="width:100%;accent-color:#3b82f6" oninput="document.getElementById('intLbl').textContent=this.value">
-                                    </div>
-                                      <div class="fgroup"><label class="flabel">Observações</label><textarea class="ftextarea" id="pObs" placeholder="Quando iniciou? Algum detalhe importante?"></textarea></div>
-                                        <button class="btn-main" onclick="enviarTriagem()" style="width:auto;padding:10px 28px"><i class="ti ti-send"></i> Enviar para triagem</button>
-                                       </div>`;}
+
+function formPac(){
+return `<div class="card">
+
+<div class="card-title">
+<i class="ti ti-clipboard-list"></i>
+Formulário de sintomas
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+
+<div class="fgroup">
+<label class="flabel">Paciente</label>
+<input class="finput" disabled value="${session.nome}">
+</div>
+
+<div class="fgroup">
+<label class="flabel">BI</label>
+<input class="finput" disabled value="${session.bi}">
+</div>
+
+</div>
+
+<div class="fgroup">
+<label class="flabel">Selecione os sintomas</label>
+
+<div class="stag-grid">
+
+${SINTOMAS.map(s=>`
+<div class="stag${selSint.includes(s)?' sel':''}" data-s="${s}">
+<i class="ti ti-circle-dotted"></i>
+${s}
+</div>
+`).join('')}
+
+</div>
+
+</div>
+
+<div class="fgroup">
+
+<label class="flabel">
+Intensidade dos sintomas —
+<strong id="intLbl" style="color:var(--accent2)">5</strong>/10
+</label>
+
+<input
+type="range"
+id="pInt"
+min="1"
+max="10"
+value="5"
+style="width:100%"
+oninput="document.getElementById('intLbl').textContent=this.value">
+
+</div>
+
+<div class="fgroup">
+<label class="flabel">Observações</label>
+
+<textarea
+class="ftextarea"
+id="pObs"
+placeholder="Quando começaram os sintomas?">
+</textarea>
+
+</div>
+
+<button
+class="btn-main"
+onclick="enviarTriagem()"
+style="width:auto;padding:10px 28px">
+
+<i class="ti ti-send"></i>
+Enviar para triagem
+
+</button>
+
+</div>`;
+}
+
+
 function statusPac(meu){
           if(!meu)return`<div class="card" style="text-align:center;padding:3rem"><i class="ti ti-clipboard-off" style="font-size:40px;color:var(--text3)"></i><p style="margin-top:1rem;color:var(--text2)">Nenhum atendimento registrado ainda.</p><p style="color:var(--text3);font-size:13px;margin-top:4px">Registre seus sintomas na aba anterior.</p></div>`;
           const dbox=meu.diag?`<div class="diag-box diag-${meu.prioridade}"><strong><i class="ti ti-notes-medical"></i> Pré-diagnóstico médico</strong><p>${meu.diag}</p></div>`:`<div style="margin-top:1rem;padding:1rem;background:var(--bg3);border-radius:var(--r-sm);color:var(--text2);font-size:13px;text-align:center"><i class="ti ti-clock"></i> Aguardando avaliação médica...</div>`;
@@ -226,50 +335,38 @@ function statusPac(meu){
                                   </div>`;}
 
 async function enviarTriagem(){
-    const idade =
-        parseInt(
-            document.getElementById("pId").value
-        );
+
     const intensidade =
-        parseInt(
-            document.getElementById("pInt").value
-        );
+        parseInt(document.getElementById("pInt").value);
+
     const observacao =
-        document
-            .getElementById("pObs")
-            .value
-            .trim();
-    if(!idade){
-        alert("Informe a idade");
-        return;
-    }
+        document.getElementById("pObs").value.trim();
+
     if(selSint.length === 0){
         alert("Selecione ao menos um sintoma");
         return;
     }
+
     const prioridade =
-        intensidade >= 8
-            ? "urgente"
-            : intensidade >= 5
-                ? "moderado"
-                : "leve";
-    const res = await fetch(
-        API.atendimento,
-        {
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({
-                idade,
-                sintomas:selSint,
-                intensidade,
-                prioridade,
-                observacao
-            })
-        }
-    );
+        intensidade >= 8 ? "urgente"
+        : intensidade >= 5 ? "moderado"
+        : "leve";
+
+    const res = await fetch(API.atendimento,{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            sintomas: selSint,
+            intensidade,
+            prioridade,
+            observacao
+        })
+    });
+
     const data = await res.json();
+
     if(data.success){
         await carregarAtendimentos();
         tab = 1;
@@ -277,9 +374,9 @@ async function enviarTriagem(){
     }else{
         alert(data.message);
     }
-}
+}            
 
-/* MEDICO */
+
 function renderMedico(c){
           const pend=DB.atendimentos.filter(a=>a.status!=='concluido');
           const conc=DB.atendimentos.filter(a=>a.status==='concluido');
@@ -341,7 +438,7 @@ function evalCard(){
           return`<div class="eval-card card">
             <div class="card-title"><i class="ti ti-clipboard-text"></i> Avaliação — ${a.paciente}</div>
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1.25rem">
-                  <div style="background:var(--bg3);border-radius:var(--r-sm);padding:10px 14px"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">IDADE</div><div style="font-size:13px;color:var(--text2)">${a.idade} anos</div></div>
+                  <div style="background:var(--bg3);border-radius:var(--r-sm);padding:10px 14px"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">IDADE</div><div style="font-size:13px;color:var(--text2)"></div></div>/*tinha idade*/
                       <div style="background:var(--bg3);border-radius:var(--r-sm);padding:10px 14px"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">INTENSIDADE</div><div style="font-size:13px;color:var(--text2)">${a.intensidade}/10</div></div>
                           <div style="background:var(--bg3);border-radius:var(--r-sm);padding:10px 14px"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">PRIORIDADE</div><div style="font-size:13px;color:var(--text2)">${a.prioridade}</div></div>
                             </div>
@@ -388,18 +485,9 @@ async function salvarDiag(){
     }
 }
 
-/* ADMIN */
-function renderAdmin(c){
-          const total=DB.atendimentos.length;
-          const pend=DB.atendimentos.filter(a=>a.status!=='concluido').length;
-          const conc=DB.atendimentos.filter(a=>a.status==='concluido').length;
-          c.innerHTML=`
-            <div class="nav-tabs">
-                <button class="ntab ${tab===0?'active':''}" onclick="setTab(0)"><i class="ti ti-dashboard"></i> Dashboard</button>
-                    <button class="ntab ${tab===1?'active':''}" onclick="setTab(1)"><i class="ti ti-users"></i> Atendimentos</button>
-                      </div>
-                        ${tab===0?dashAdmin(total,pend,conc):listaAdmin()}`;
-}
+
+
+
 function dashAdmin(total,pend,conc){
           return`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:24px">
               <div class="card" style="margin:0"><div style="font-size:12px;color:var(--text3);margin-bottom:8px">TOTAL</div><div style="font-size:32px;font-weight:700">${total}</div></div>
@@ -433,4 +521,91 @@ function listaAdmin(){
       </tbody>
     </table>
   </div>`;
+}
+
+async function criarMedico(){
+  const crm = document.getElementById("admMedCRM").value;
+  const nome = document.getElementById("admMedNome").value;
+  const espec = document.getElementById("admMedEsp").value;
+  const senha = document.getElementById("admMedPass").value;
+
+  const res = await fetch(`${API.auth}/medico/register`, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ crm, nome, espec, senha })
+  });
+
+  const data = await res.json();
+
+  if(data.success){
+    alert("Médico cadastrado com sucesso!");
+  }else{
+    alert(data.message);
+  }
+}
+
+function renderMedicosAdmin(){
+  return `
+    <div class="card">
+      <div class="card-title">Cadastrar Médico</div>
+
+      <div class="fgroup">
+        <label class="flabel">CRM</label>
+        <input class="finput" id="admMedCRM" placeholder="CRM-12345">
+      </div>
+
+      <div class="fgroup">
+        <label class="flabel">Nome</label>
+        <input class="finput" id="admMedNome">
+      </div>
+
+      <div class="fgroup">
+        <div class="fgroup"><label class="flabel">Especialidade</label>
+        <select class="fselect" id="admMedEsp" >
+        <option value="">Selecione...</option>
+        <option>Clínica Geral</option><option>Cardiologia</option><option>Pediatria</option>
+        <option>Neurologia</option><option>Ortopedia</option><option>Ginecologia</option>
+        </select>
+       </div>
+      </div>
+
+      <div class="fgroup">
+        <label class="flabel">Senha</label>
+        <input class="finput" id="admMedPass" type="password">
+      </div>
+
+      <button class="btn-main green" onclick="criarMedico()">
+        Cadastrar Médico
+      </button>
+    </div>
+  `;
+}
+
+function renderAdmin(c){
+  const total = DB.atendimentos.length;
+  const pend = DB.atendimentos.filter(a=>a.status!=='concluido').length;
+  const conc = DB.atendimentos.filter(a=>a.status==='concluido').length;
+
+  c.innerHTML = `
+    <div class="nav-tabs">
+      <button class="ntab ${tab===0?'active':''}" onclick="setTab(0)">
+        <i class="ti ti-dashboard"></i> Dashboard
+      </button>
+
+      <button class="ntab ${tab===1?'active':''}" onclick="setTab(1)">
+        <i class="ti ti-users"></i> Atendimentos
+      </button>
+
+      <button class="ntab ${tab===2?'active':''}" onclick="setTab(2)">
+        <i class="ti ti-stethoscope"></i> Médicos
+      </button>
+    </div>
+
+    ${
+      tab===0 ? dashAdmin(total,pend,conc)
+      : tab===1 ? listaAdmin()
+      : tab===2 ? renderMedicosAdmin()
+      : ""
+    }
+  `;
 }

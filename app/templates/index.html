@@ -50,7 +50,7 @@
     <div class="err-box hidden" id="errAdm"><i class="ti ti-alert-circle"></i> <span id="errAdmMsg">Credenciais inválidas.</span></div>
     <div class="fgroup"><label class="flabel">Usuário</label><input class="finput" id="admUser" type="text" placeholder="admin" autocomplete="off"></div>
     <div class="fgroup"><label class="flabel">Senha</label><input class="finput" id="admPass" type="password" placeholder="••••••••"></div>
-    <button class="btn-main" onclick="loginAdmin()"><i class="ti ti-login"></i> Entrar no sistema</button>
+    <button class="btn-main green" onclick="loginAdmin()"><i class="ti ti-login"></i> Entrar no sistema</button>
     <button class="btn-back" onclick="goScreen('scrRole')"><i class="ti ti-arrow-left"></i> Voltar</button>
   </div>
   <div class="hint">Credenciais demo — usuário: <strong>admin</strong> · senha: <strong>admin123</strong></div>
@@ -63,14 +63,6 @@
     <p class="sub">Autentique-se com suas credenciais profissionais</p>
     <div class="err-box hidden" id="errMed"><i class="ti ti-alert-circle"></i> <span id="errMedMsg">CRM ou senha incorretos.</span></div>
     <div class="fgroup"><label class="flabel">CRM</label><input class="finput" id="medCRM" type="text" placeholder="Ex: CRM-12345" autocomplete="off"></div>
-    <div class="fgroup"><label class="flabel">Nome completo</label><input class="finput" id="medNome" type="text" placeholder="Dr. Nome Sobrenome"></div>
-    <div class="fgroup"><label class="flabel">Especialidade</label>
-      <select class="fselect" id="medEspec">
-        <option value="">Selecione...</option>
-        <option>Clínica Geral</option><option>Cardiologia</option><option>Pediatria</option>
-        <option>Neurologia</option><option>Ortopedia</option><option>Ginecologia</option>
-      </select>
-    </div>
     <div class="fgroup"><label class="flabel">Senha</label><input class="finput" id="medPass" type="password" placeholder="••••••••"></div>
     <button class="btn-main green" onclick="loginMedico()"><i class="ti ti-login"></i> Entrar no sistema</button>
     <button class="btn-back" onclick="goScreen('scrRole')"><i class="ti ti-arrow-left"></i> Voltar</button>
@@ -79,18 +71,52 @@
 </div>
 
 <div class="screen" id="scrPaciente">
-  <div class="logo"><div class="logo-mark"><i class="ti ti-heart-rate-monitor"></i></div><div class="logo-text">Sistema de <span>Atendimento</span></div></div>
-  <div class="login-box pac anim">
-    <h2>Área do Paciente</h2>
-    <p class="sub">Acesse com seu CPF para continuar</p>
-    <div class="err-box hidden" id="errPac"><i class="ti ti-alert-circle"></i> <span id="errPacMsg">CPF inválido. Use o formato 000.000.000-00</span></div>
-    <div class="fgroup"><label class="flabel">CPF</label><input class="finput" id="pacCPF" type="text" placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this)"></div>
-    <div class="fgroup"><label class="flabel">Nome completo</label><input class="finput" id="pacNome" type="text" placeholder="Seu nome completo"></div>
-    <button class="btn-main amber" onclick="loginPaciente()"><i class="ti ti-login"></i> Continuar</button>
+  <div class="logo">
+    <div class="logo-mark"><i class="ti ti-heart-rate-monitor"></i></div>
+    <div class="logo-text">Sistema de <span>Atendimento</span></div>
+  </div>
+<div class="login-box pac anim">
+
+  <div class="nav-tabs">
+    <button onclick="togglePac('login')" id="tabLogin" class="ntab active">Login</button>
+    <button onclick="togglePac('register')" id="tabRegister" class="ntab">Cadastro</button>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="pacLogin">
+    <h2>Entrar</h2>
+
+    <div class="fgroup">
+      <label>Email</label>
+      <input id="pacEmail" type="email" class="finput">
+    </div>
+
+    <div class="fgroup">
+      <label>Senha</label>
+      <input id="pacSenha" type="password" class="finput">
+    </div>
+
+    <button class="btn-main green" onclick="loginPaciente()">Entrar</button>
     <button class="btn-back" onclick="goScreen('scrRole')"><i class="ti ti-arrow-left"></i> Voltar</button>
   </div>
-  <div class="hint">Qualquer CPF válido no formato indicado é aceito para acesso demo.</div>
+
+  <!-- REGISTER -->
+  <div id="pacRegister" style="display:none">
+    <h2>Criar conta</h2>
+
+    <div class="fgroup"><input id="rNome" type="text" placeholder="Nome" class="finput" ></div>
+    <div class="fgroup"><input id="rBI" type="text" placeholder="BI" class="finput" ></div>
+    <div class="fgroup"><input id="rData" type="date" class="finput" ></div>
+    <div class="fgroup"><input id="rTel" type="tel" placeholder="Telefone" class="finput" ></div>
+    <div class="fgroup"><input id="rEmail" type="email"placeholder="Email" class="finput" ></div>
+    <div class="fgroup"><input id="rSenha" type="password" placeholder="Senha" class="finput" ></div>
+
+    <button class="btn-main green" onclick="registerPaciente()">Criar conta</button>
+    <button class="btn-back" onclick="goScreen('scrRole')"><i class="ti ti-arrow-left"></i> Voltar</button>
+  </div>
 </div>
+</div>
+  
 
 <div class="main-wrap hidden" id="mainWrap">
   <div class="topbar">

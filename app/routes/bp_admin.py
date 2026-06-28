@@ -1,21 +1,17 @@
-from flask import (
-    Blueprint,
-    request,
-    jsonify,
-    session
+from flask import Blueprint, request, jsonify, session
+from werkzeug.security import check_password_hash
+from app.respositories.crud_admin import (
+    consultar_admin_por_username,
+    listar_admins_db
 )
-
-from app.respositories.crud_admin import listar_admins_db
 from app.respositories.crud_medico import listar_medicos
 from app.respositories.crud_paciente import consultar_pacientes
 from app.respositories.crud_atendimento import consultar_atendimentos
-
 from app.services.admin_service import (
-    login_admin_service,
     criar_admin_service,
-    logout_admin_service,
     listar_admins_service
 )
+
 
 bp_admin = Blueprint(
     'bp_admin',
@@ -23,50 +19,36 @@ bp_admin = Blueprint(
     url_prefix='/api/auth/admin'
 )
 
-
-# ==================================
-# VERIFICAR SESSÃO
-# ==================================
-
 def admin_logado():
     return 'admin_id' in session
 
 
-# ==================================
-# LOGIN
-# ==================================
-
-@bp_admin.route('/login', methods=['POST'])
-def login():
-
-    dados = request.get_json()
-
-    username = dados.get('username')
-    password = dados.get('password')
-
-    try:
-
-        admin = login_admin_service(
-            username,
-            password
-        )
-
+@bp_admin.route("/login", methods=["POST"])
+def admin_login():
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+    admin = consultar_admin_por_username(username)
+    if not admin:
         return jsonify({
-            'success': True,
-            'admin': admin
-        })
-
-    except Exception as e:
-
+            "success": False,
+            "message": "Admin não encontrado"
+        }), 404
+    if not check_password_hash(admin["senha"], password):
         return jsonify({
-            'success': False,
-            'message': str(e)
+            "success": False,
+            "message": "Senha inválida"
         }), 401
+    session["admin_id"] = admin["id"]
+    session["admin_user"] = admin["nome"]
+    return jsonify({
+        "success": True,
+        "admin": {
+            "id": admin["id"],
+            "nome": admin["nome"]
+        }
+    })
 
-
-# ==================================
-# VERIFICAR USUÁRIO LOGADO
-# ==================================
 
 @bp_admin.route('/me', methods=['GET'])
 def me():
@@ -85,25 +67,6 @@ def me():
         }
     })
 
-
-# ==================================
-# LOGOUT
-# ==================================
-
-@bp_admin.route('/logout', methods=['POST'])
-def logout():
-
-    logout_admin_service()
-
-    return jsonify({
-        'success': True
-    })
-
-
-# ==================================
-# LISTAR ADMINS
-# ==================================
-
 @bp_admin.route('/list', methods=['GET'])
 def list_admins():
 
@@ -121,10 +84,6 @@ def list_admins():
     })
 
 
-# ==================================
-# CRIAR ADMIN
-# ==================================
-
 @bp_admin.route('/create', methods=['POST'])
 def create_admin():
 
@@ -138,30 +97,21 @@ def create_admin():
 
     username = dados.get('username')
     password = dados.get('password')
-
     try:
-
         admin = criar_admin_service(
             username,
             password
         )
-
         return jsonify({
             'success': True,
             'admin': admin
         })
-
     except Exception as e:
-
         return jsonify({
             'success': False,
             'message': str(e)
         }), 400
 
-
-# ==================================
-# ESTATÍSTICAS GERAIS
-# ==================================
 
 @bp_admin.route('/stats', methods=['GET'])
 def stats():
@@ -186,9 +136,6 @@ def stats():
     })
 
 
-# ==================================
-# MÉTRICAS DO DASHBOARD
-# ==================================
 
 @bp_admin.route('/dashboard-metrics', methods=['GET'])
 def dashboard_metrics():
@@ -198,9 +145,7 @@ def dashboard_metrics():
             'success': False,
             'message': 'Não autorizado'
         }), 401
-
     atendimentos = consultar_atendimentos()
-
     pendentes = len([
         a for a in atendimentos
         if a['status'] == 'pendente'
@@ -236,9 +181,6 @@ def dashboard_metrics():
     })
 
 
-# ==================================
-# LISTAR MÉDICOS
-# ==================================
 
 @bp_admin.route('/medicos', methods=['GET'])
 def medicos():
@@ -257,10 +199,6 @@ def medicos():
     })
 
 
-# ==================================
-# LISTAR PACIENTES
-# ==================================
-
 @bp_admin.route('/pacientes', methods=['GET'])
 def pacientes():
 
@@ -278,9 +216,6 @@ def pacientes():
     })
 
 
-# ==================================
-# LISTAR ATENDIMENTOS
-# ==================================
 
 @bp_admin.route('/atendimentos', methods=['GET'])
 def atendimentos():
@@ -297,3 +232,5 @@ def atendimentos():
         'success': True,
         'atendimentos': dados
     })
+
+

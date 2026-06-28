@@ -1,4 +1,4 @@
-from flask import Flask  # type: ignore
+from flask import Flask
 from app.routes.bp_user import bp_user
 from app.routes.bp_medico import bp_medico
 from app.routes.bp_paciente import bp_paciente

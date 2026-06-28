@@ -1,6 +1,45 @@
 import sqlite3
 from ..models.db import conectar
 
+def criar_atendimento(
+    paciente_id,
+    sintomas,
+    intensidade,
+    observacao,
+    diagnostico=None,
+    prioridade=None,
+    status="pendente",
+    medico_id=None
+):
+    with conectar() as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("""
+        INSERT INTO atendimento (
+            paciente_id,
+            medico_id,
+            sintomas,
+            intensidade,
+            observacao,
+            diagnostico,
+            prioridade,
+            status
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            paciente_id,
+            medico_id,
+            sintomas,
+            intensidade,
+            observacao,
+            diagnostico,
+            prioridade,
+            status
+        ))
+
+        conn.commit()
+        return cursor.lastrowid
+
 def consultar_atendimentos():
     with conectar() as conn:
         conn.row_factory = sqlite3.Row
@@ -11,10 +50,10 @@ def consultar_atendimentos():
             a.id,
             p.nome AS paciente,
             p.bi,
-            a.idade,
+            p.data_nascimento,
             a.sintomas,
             a.intensidade,
-            a.observacoes,
+            a.observacao,
             a.diagnostico,
             a.prioridade,
             a.status,
@@ -31,74 +70,28 @@ def consultar_atendimentos():
             item = dict(row)
 
             item["cpf"] = item["bi"]
-            item["obs"] = item["observacoes"] or ""
+            item["obs"] = item["observacao"] or ""
             item["diag"] = item["diagnostico"] or ""
 
-            if item["sintomas"]:
-                item["sintomas"] = item["sintomas"].split(",")
-            else:
-                item["sintomas"] = []
+            item["sintomas"] = (
+                item["sintomas"].split(",")
+                if item["sintomas"]
+                else []
+            )
 
             atendimentos.append(item)
 
         return atendimentos
 
-def criar_atendimento(
-    paciente_id,
-    medico_id,
-    idade,
-    sintomas,
-    intensidade,
-    observacoes,
-    prioridade,
-    status
-):
+def atualizar_diagnostico_atendimento(id, diagnostico):
     with conectar() as conn:
         cursor = conn.cursor()
 
         cursor.execute("""
-        INSERT INTO atendimento (
-            paciente_id,
-            medico_id,
-            idade,
-            sintomas,
-            intensidade,
-            observacoes,
-            prioridade,
-            status
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            paciente_id,
-            medico_id,
-            idade,
-            sintomas,
-            intensidade,
-            observacoes,
-            prioridade,
-            status
-        ))
-
-        conn.commit()
-
-        return cursor.lastrowid
-
-def atualizar_diagnostico(
-    atendimento_id,
-    diagnostico
-):
-    with conectar() as conn:
-        cursor = conn.cursor()
-
-        cursor.execute("""
-        UPDATE atendimento
-        SET diagnostico = ?,
-            status = 'concluido'
-        WHERE id = ?
-        """, (
-            diagnostico,
-            atendimento_id
-        ))
+            UPDATE atendimento
+            SET diagnostico = ?
+            WHERE id = ?
+        """, (diagnostico, id))
 
         conn.commit()
 
@@ -106,4 +99,30 @@ def excluir_atendimento(atendimento_id):
     with conectar() as conn:
         cursor = conn.cursor()
         cursor.execute('DELETE FROM atendimento WHERE id = ?', (atendimento_id,))
+        conn.commit()
+
+def atualizar_status_atendimento(id, status):
+    with conectar() as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE atendimento
+            SET status = ?
+            WHERE id = ?
+        """, (status, id))
+
+        conn.commit()
+
+def concluir_atendimento(id, diagnostico):
+    with conectar() as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("""
+        UPDATE atendimento
+        SET
+            diagnostico = ?,
+            status = 'concluido'
+        WHERE id = ?
+        """, (diagnostico, id))
+
         conn.commit()

@@ -8,13 +8,20 @@ def conectar():
 def tbl_paciente():
     with conectar() as conn:
         cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS paciente(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                bi INTEGER NOT NULL,
-                nome TEXT NOT NULL
-            )
-        ''')
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS paciente(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            bi TEXT NOT NULL UNIQUE,
+            data_nascimento TEXT NOT NULL,
+            telefone TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            senha TEXT NOT NULL,
+            data_cadastro TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+
         conn.commit()
 
 def tbl_medico():
@@ -51,10 +58,9 @@ def tbl_atendimento():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         paciente_id INTEGER NOT NULL,
         medico_id INTEGER,
-        idade INTEGER NOT NULL,
         sintomas TEXT NOT NULL,
         intensidade INTEGER NOT NULL,
-        observacoes TEXT,
+        observacao TEXT,
         diagnostico TEXT,
         prioridade TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'pendente',

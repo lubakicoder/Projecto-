@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+   <meta charset="UTF-8">                  
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Sistema de Atendimento</title>
+   <link rel="stylesheet" href="static/css/style.css">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<div class="app" id="app">
+
+<div class="screen active" id="scrRole">
+  <div class="logo">
+    <div class="logo-mark"><i class="ti ti-heart-rate-monitor"></i></div>
+    <div class="logo-text">Sistema de <span>Atendimento</span></div>
+  </div>
+  <div class="screen-title">
+    <h2>Bem-vindo ao sistema</h2>
+    <p>Selecione seu perfil para prosseguir</p>
+  </div>
+  <div class="role-grid">
+    <div class="role-card adm" onclick="goLogin('admin')">
+      <div class="rc-icon blue"><i class="ti ti-shield-check"></i></div>
+      <div class="rc-name">Administrador</div>
+      <div class="rc-desc">Gerencia usuários e monitora o sistema</div>
+    </div>
+    <div class="role-card med" onclick="goLogin('medico')">
+      <div class="rc-icon green"><i class="ti ti-stethoscope"></i></div>
+      <div class="rc-name">Médico</div>
+      <div class="rc-desc">Avalia triagens e registra diagnósticos</div>
+    </div>
+    <div class="role-card pac" onclick="goLogin('paciente')">
+      <div class="rc-icon amber"><i class="ti ti-user-heart"></i></div>
+      <div class="rc-name">Paciente</div>
+      <div class="rc-desc">Registra sintomas e acompanha atendimento</div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="scrAdmin">
+  <div class="logo"><div class="logo-mark"><i class="ti ti-heart-rate-monitor"></i></div><div class="logo-text">Sistema de <span>Atendimento</span></div></div>
+  <div class="login-box adm anim">
+    <h2>Acesso Administrativo</h2>
+    <p class="sub">Entre com suas credenciais de sistema</p>
+    <div class="err-box hidden" id="errAdm"><i class="ti ti-alert-circle"></i> <span id="errAdmMsg">Credenciais inválidas.</span></div>
+    <div class="fgroup"><label class="flabel">Usuário</label><input class="finput" id="admUser" type="text" placeholder="admin" autocomplete="off"></div>
+    <div class="fgroup"><label class="flabel">Senha</label><input class="finput" id="admPass" type="password" placeholder="••••••••"></div>
+    <button class="btn-main green" onclick="loginAdmin()"><i class="ti ti-login"></i> Entrar no sistema</button>
+    <button class="btn-back" onclick="goScreen('scrRole')"><i class="ti ti-arrow-left"></i> Voltar</button>
+  </div>
+  <div class="hint">Credenciais demo — usuário: <strong>admin</strong> · senha: <strong>admin123</strong></div>
+</div>
+
+<div class="screen" id="scrMedico">
+  <div class="logo"><div class="logo-mark"><i class="ti ti-heart-rate-monitor"></i></div><div class="logo-text">Sistema de <span>Atendimento</span></div></div>
+  <div class="login-box med anim">
+    <h2>Acesso Médico</h2>
+    <p class="sub">Autentique-se com suas credenciais profissionais</p>
+    <div class="err-box hidden" id="errMed"><i class="ti ti-alert-circle"></i> <span id="errMedMsg">CRM ou senha incorretos.</span></div>
+    <div class="fgroup"><label class="flabel">CRM</label><input class="finput" id="medCRM" type="text" placeholder="Ex: CRM-12345" autocomplete="off"></div>
+    <div class="fgroup"><label class="flabel">Senha</label><input class="finput" id="medPass" type="password" placeholder="••••••••"></div>
+    <button class="btn-main green" onclick="loginMedico()"><i class="ti ti-login"></i> Entrar no sistema</button>
+    <button class="btn-back" onclick="goScreen('scrRole')"><i class="ti ti-arrow-left"></i> Voltar</button>
+  </div>
+  <div class="hint">Senha demo: <strong>med123</strong> — CRM pode ser qualquer valor no formato CRM-XXXXX</div>
+</div>
+
+<div class="screen" id="scrPaciente">
+  <div class="logo">
+    <div class="logo-mark"><i class="ti ti-heart-rate-monitor"></i></div>
+    <div class="logo-text">Sistema de <span>Atendimento</span></div>
+  </div>
+<div class="login-box pac anim">
+
+  <div class="nav-tabs">
+    <button onclick="togglePac('login')" id="tabLogin" class="ntab active">Login</button>
+    <button onclick="togglePac('register')" id="tabRegister" class="ntab">Cadastro</button>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="pacLogin">
+    <h2>Entrar</h2>
+
+    <div class="fgroup">
+      <label>Email</label>
+      <input id="pacEmail" type="email" class="finput">
+    </div>
+
+    <div class="fgroup">
+      <label>Senha</label>
+      <input id="pacSenha" type="password" class="finput">
+    </div>
+
+    <button class="btn-main green" onclick="loginPaciente()">Entrar</button>
+    <button class="btn-back" onclick="goScreen('scrRole')"><i class="ti ti-arrow-left"></i> Voltar</button>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="pacRegister" style="display:none">
+    <h2>Criar conta</h2>
+
+    <div class="fgroup"><input id="rNome" type="text" placeholder="Nome" class="finput" ></div>
+    <div class="fgroup"><input id="rBI" type="text" placeholder="BI" class="finput" ></div>
+    <div class="fgroup"><input id="rData" type="date" class="finput" ></div>
+    <div class="fgroup"><input id="rTel" type="tel" placeholder="Telefone" class="finput" ></div>
+    <div class="fgroup"><input id="rEmail" type="email"placeholder="Email" class="finput" ></div>
+    <div class="fgroup"><input id="rSenha" type="password" placeholder="Senha" class="finput" ></div>
+
+    <button class="btn-main green" onclick="registerPaciente()">Criar conta</button>
+    <button class="btn-back" onclick="goScreen('scrRole')"><i class="ti ti-arrow-left"></i> Voltar</button>
+  </div>
+</div>
+</div>
+  
+
+<div class="main-wrap hidden" id="mainWrap">
+  <div class="topbar">
+    <div class="tl">
+      <div class="topbar-logo">Sistema de <span>Atendimento</span></div>
+      <div class="t-sep"></div>
+      <span class="t-badge" id="tBadge"></span>
+      <span class="t-user" id="tUser"></span>
+    </div>
+    <div class="row" style="gap:10px">
+      <span class="t-user" id="tExtra"></span>
+      <button class="btn-logout" onclick="logout()"><i class="ti ti-logout"></i> Sair</button>
+    </div>
+  </div>
+  <div class="content anim" id="mainContent"></div>
+</div>
+
+</div>
+                    
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</body>
+</html>

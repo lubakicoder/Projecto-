@@ -4,6 +4,9 @@ from datetime import timedelta
 
 load_dotenv()
 
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # pasta app/
+
 class Config:
     SECRET_KEY = os.getenv('FLASK_SECRET_KEY')
     if not SECRET_KEY:
@@ -12,8 +15,9 @@ class Config:
     HOST = os.getenv('HOST', '127.0.0.1')
     PORT = int(os.getenv('PORT', 5000))
     DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-    
-    DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///instance/app.db')
+
+    INSTANCE_PATH = os.path.join(BASE_DIR, 'instance')
+    DATABASE_PATH = os.path.join(INSTANCE_PATH, 'database.db')
     DB_TIMEOUT = int(os.getenv('DB_TIMEOUT', 30))
     
     SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'

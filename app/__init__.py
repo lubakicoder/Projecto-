@@ -19,7 +19,7 @@ def criar_app():
     app.register_blueprint(bp_admin)
     app.register_blueprint(bp_atendimento)
     app.register_blueprint(bp_auth)
-    os.makedirs(app.config['INSTANCE_PATH'], exist_ok=True)
+  #  os.makedirs(app.config['INSTANCE_PATH'], exist_ok=True)
     init_app(app)
 
     return app

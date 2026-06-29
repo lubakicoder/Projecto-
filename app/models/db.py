@@ -2,11 +2,11 @@ import os
 import sqlite3
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "database/app.db")
+DB_PATH = os.path.join(BASE_DIR, "database.db")
 
 def conectar():
-    conn = sqlite3.connect(DB_PATH)
-    return conn
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    return sqlite3.connect(DB_PATH)
 
 def tbl_paciente():
     with conectar() as conn:

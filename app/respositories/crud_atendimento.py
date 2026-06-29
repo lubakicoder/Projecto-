@@ -44,7 +44,6 @@ def consultar_atendimentos():
     with conectar() as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-
         cursor.execute("""
         SELECT
             a.id,
@@ -63,36 +62,28 @@ def consultar_atendimentos():
             ON p.id = a.paciente_id
         ORDER BY a.id DESC
         """)
-
         atendimentos = []
-
         for row in cursor.fetchall():
             item = dict(row)
-
             item["cpf"] = item["bi"]
             item["obs"] = item["observacao"] or ""
             item["diag"] = item["diagnostico"] or ""
-
             item["sintomas"] = (
                 item["sintomas"].split(",")
                 if item["sintomas"]
                 else []
             )
-
             atendimentos.append(item)
-
         return atendimentos
 
 def atualizar_diagnostico_atendimento(id, diagnostico):
     with conectar() as conn:
         cursor = conn.cursor()
-
         cursor.execute("""
             UPDATE atendimento
             SET diagnostico = ?
             WHERE id = ?
         """, (diagnostico, id))
-
         conn.commit()
 
 def excluir_atendimento(atendimento_id):
@@ -104,19 +95,16 @@ def excluir_atendimento(atendimento_id):
 def atualizar_status_atendimento(id, status):
     with conectar() as conn:
         cursor = conn.cursor()
-
         cursor.execute("""
             UPDATE atendimento
             SET status = ?
             WHERE id = ?
         """, (status, id))
-
         conn.commit()
 
 def concluir_atendimento(id, diagnostico):
     with conectar() as conn:
         cursor = conn.cursor()
-
         cursor.execute("""
         UPDATE atendimento
         SET
@@ -124,5 +112,4 @@ def concluir_atendimento(id, diagnostico):
             status = 'concluido'
         WHERE id = ?
         """, (diagnostico, id))
-
         conn.commit()

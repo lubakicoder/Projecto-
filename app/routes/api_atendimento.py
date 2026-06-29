@@ -12,7 +12,6 @@ bp_atendimento = Blueprint(
 )
 
 
-
 @bp_atendimento.route("", methods=["GET"])
 def listar():
     atendimentos = consultar_atendimentos()

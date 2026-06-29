@@ -29,11 +29,9 @@ def login_medico():
 
     if not check_password_hash(medico["senha"], senha):
         return jsonify({"success": False, "message": "Senha inválida"}), 401
-
     session["medico_id"] = medico["id"]
     session["medico_nome"] = medico["nome"]
     session["medico_crm"] = medico["crm"]
-
     return jsonify({
         "success": True,
         "medico": {
@@ -46,35 +44,28 @@ def login_medico():
 @bp_medico.route("/register", methods=["POST"])
 def register_medico():
     dados = request.get_json()
-
     crm = dados.get("crm")
     nome = dados.get("nome")
     espec = dados.get("espec")
     senha = dados.get("senha")
-
     if not crm or not nome or not senha:
         return jsonify({
             "success": False,
             "message": "Campos obrigatórios"
         }), 400
-
     medico = crud_medico.consultar_medico_por_crm(crm)
-
     if medico:
         return jsonify({
             "success": False,
             "message": "Médico já existe"
         }), 400
-
     senha_hash = generate_password_hash(senha)
-
     crud_medico.criar_medico(
         crm=crm,
         nome=nome,
         especialidade=espec,
         senha=senha_hash
     )
-
     return jsonify({
         "success": True,
         "message": "Médico criado"

@@ -325,7 +325,7 @@ function statusPac(meu){
           return`<div class="card">
             <div class="row" style="margin-bottom:1.25rem;gap:14px">
                 <div class="avatar av-amber" style="background:rgba(245,158,11,0.15);color:#fbbf24"><i class="ti ti-user"></i></div>
-                    <div class="flex1"><p style="font-weight:600;font-size:15px">${meu.paciente}</p><p style="color:var(--text2);font-size:13px">${meu.idade} anos · CPF ${meu.bi}</p></div>
+                    <div class="flex1"><p style="font-weight:600;font-size:15px">${meu.paciente}</p><p style="color:var(--text2);font-size:13px">${meu.data_nascimento}  · BI ${meu.bi}</p></div>
                         <span class="pill p-${meu.status}">${meu.status.replace('-',' ')}</span>
                           </div>
                             <p style="font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Sintomas informados</p>
@@ -393,9 +393,9 @@ function filaMed(lista){
           if(!lista.length)return`<div class="card" style="text-align:center;padding:3rem"><i class="ti ti-circle-check" style="font-size:40px;color:#10b981"></i><p style="margin-top:1rem;color:var(--text2)">Nenhum atendimento pendente.</p></div>`;
           const sorted=[...lista].sort((a,b)=>({urgente:0,moderado:1,leve:2}[a.prioridade]||2)-({urgente:0,moderado:1,leve:2}[b.prioridade]||2));
           return`<div class="card tbl-wrap"><table>
-              <thead><tr><th>Paciente</th><th>CPF</th><th>Sintomas</th><th>Intensidade</th><th>Prioridade</th><th>Status</th><th>Ação</th></tr></thead>
+              <thead><tr><th>Paciente</th><th>BI</th><th>Sintomas</th><th>Intensidade</th><th>Prioridade</th><th>Status</th><th>Ação</th></tr></thead>
                   <tbody>${sorted.map(a=>`<tr>
-                        <td><strong>${a.paciente}</strong><br><span style="font-size:11px;color:var(--text3)">${a.idade} anos</span></td>
+                        <td><strong>${a.paciente}</strong></td>
                               <td style="color:var(--text2);font-size:12px">${a.bi ||'-'}</td>
                                     <td style="font-size:12px;color:var(--text2)">${a.sintomas.slice(0,2).join(', ')}${a.sintomas.length>2?` <span style="color:var(--text3)">+${a.sintomas.length-2}</span>`:''}</td>
                                           <td><span style="font-weight:600;color:${a.intensidade>=8?'#f87171':a.intensidade>=5?'#fbbf24':'#6ee7b7'}">${a.intensidade}/10</span></td>
@@ -414,7 +414,8 @@ function concMed(lista){
                                     <td><span class="pill p-${a.prioridade}">${a.prioridade}</span></td>
                                           <td><span class="pill p-concluido">concluído</span></td>
                                              </tr>`).join('')}</tbody>
-                                               </table><</div>`;}
+                                               </table></div>`;}
+
 function perfilMed(){return`<div class="card" style="max-width:420px">
   <div class="row" style="gap:14px;margin-bottom:1.5rem">
       <div class="avatar av-green"><i class="ti ti-stethoscope"></i></div>
@@ -438,7 +439,7 @@ function evalCard(){
           return`<div class="eval-card card">
             <div class="card-title"><i class="ti ti-clipboard-text"></i> Avaliação — ${a.paciente}</div>
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1.25rem">
-                  <div style="background:var(--bg3);border-radius:var(--r-sm);padding:10px 14px"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">IDADE</div><div style="font-size:13px;color:var(--text2)"></div></div>/*tinha idade*/
+                  <div style="background:var(--bg3);border-radius:var(--r-sm);padding:10px 14px"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">Nascido</div><div style="font-size:13px;color:var(--text2)">${a.data_nascimento}</div></div>
                       <div style="background:var(--bg3);border-radius:var(--r-sm);padding:10px 14px"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">INTENSIDADE</div><div style="font-size:13px;color:var(--text2)">${a.intensidade}/10</div></div>
                           <div style="background:var(--bg3);border-radius:var(--r-sm);padding:10px 14px"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">PRIORIDADE</div><div style="font-size:13px;color:var(--text2)">${a.prioridade}</div></div>
                             </div>
@@ -503,7 +504,7 @@ function listaAdmin(){
         <tr>
           <th>ID</th>
           <th>Paciente</th>
-          <th>CPF</th>
+          <th>BI</th>
           <th>Prioridade</th>
           <th>Status</th>
         </tr>

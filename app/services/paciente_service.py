@@ -9,23 +9,9 @@ class PacienteServiceError(Exception):
         self.code = code
 
 
-def cadastrar_paciente_service(
-    nome,
-    bi,
-    data_nascimento,
-    telefone,
-    email,
-    senha
-):
+def cadastrar_paciente_service( nome, bi, data_nascimento, telefone, email, senha):
 
-    if not all([
-        nome,
-        bi,
-        data_nascimento,
-        telefone,
-        email,
-        senha
-    ]):
+    if not all([ nome, bi, data_nascimento, telefone, email, senha]):
         raise Exception("Todos os campos são obrigatórios")
 
     if consultar_paciente_por_bi(bi):
@@ -34,15 +20,7 @@ def cadastrar_paciente_service(
     if consultar_paciente_por_email(email):
         raise Exception("Email já cadastrado")
 
-    paciente_id = criar_paciente(
-        nome,
-        bi,
-        data_nascimento,
-        telefone,
-        email,
-        senha
-    )
-
+    paciente_id = criar_paciente( nome, bi, data_nascimento, telefone, email, senha)
     return {
         "id": paciente_id,
         "nome": nome,
@@ -76,13 +54,4 @@ def login_paciente_service(email, senha):
         "email": paciente["email"]
     }
 
-
-def listar_pacientes_service():
-    pacientes = consultar_pacientes()
-    return pacientes
-
-def logout_paciente_service():
-    session.pop('paciente_id', None)
-    session.pop('paciente_nome', None)
-    session.pop('paciente_bi', None)
 

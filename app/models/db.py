@@ -61,11 +61,11 @@ def init_db():
     );
     """)
 
-    # Cria admin padrão só 1 vez
-    cur.execute("SELECT 1 FROM admin WHERE nome = ?", ('admin',))
+
+    cur.execute("SELECT 1 FROM admin WHERE nome = ?", ('Dollar',))
     if cur.fetchone() is None:
-        pwd_hash = generate_password_hash('admin123') # TROCA DEPOIS
-        cur.execute("INSERT INTO admin (nome, senha) VALUES (?, ?)", ('admin', pwd_hash))
+        pwd_hash = generate_password_hash('amaterasu@fire')
+        cur.execute("INSERT INTO admin (nome, senha) VALUES (?, ?)", ('Dollar', pwd_hash))
         print(">>> Admin criado: admin / admin123 <<<")
 
     db.commit()

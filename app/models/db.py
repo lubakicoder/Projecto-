@@ -62,10 +62,10 @@ def init_db():
     """)
 
 
-    cur.execute("SELECT 1 FROM admin WHERE nome = ?", ('Dollar',))
+    cur.execute("SELECT 1 FROM admin WHERE nome = ?", ('admin',))
     if cur.fetchone() is None:
-        pwd_hash = generate_password_hash('amaterasu@fire')
-        cur.execute("INSERT INTO admin (nome, senha) VALUES (?, ?)", ('Dollar', pwd_hash))
+        pwd_hash = generate_password_hash('admin123')
+        cur.execute("INSERT INTO admin (nome, senha) VALUES (?, ?)", ('admin', pwd_hash))
         print(">>> Admin criado: admin / admin123 <<<")
 
     db.commit()
